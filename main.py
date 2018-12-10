@@ -59,7 +59,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             QRCode = QRScanner.read_qr_code(qr)
             producer = KafkaProducer(bootstrap_servers=ServerAdress,
                                      value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-            future = producer.send(ExcameTopic, {'QRCode': QRCode, 'Speed': Speed, 'Team': Team})
+            future = producer.send(ExcameTopic, {'QRCode': QRCode, 'Speed': pSpeed, 'Team': Team})
             result = future.get(timeout=60)
             producer.flush()
             ##
