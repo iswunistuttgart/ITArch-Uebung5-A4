@@ -16,7 +16,7 @@ Team = 'TEAMNAME' #Hier den Teamnamen als String eintragen
 
 #Ab hier muss nichts mehr angepassst werden
 ############################################################
-ServerAdress = '193.196.36.248:9092';
+ServerAdress = '193.196.39.80:9092';
 QRCode = 'Sample QRCode'
 ExcameTopic = 'GENERAL-CHANNEL'
 camera = PiCamera()
