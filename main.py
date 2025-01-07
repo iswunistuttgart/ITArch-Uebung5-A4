@@ -56,7 +56,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             print (QRScanner.read_qr_code(qr))
             QRCode = QRScanner.read_qr_code(qr)
             TOPIC = f'isw/ITArch/pi/'
-            MESSAGE = {"QRCode": QRCode, "Speed": pSpeed, "Team": Team}
+            MESSAGE = {"qrcode": QRCode, "speed": pSpeed, "team": Team}
             client.publish(TOPIC, str(MESSAGE))
             print(f"Published message '{str(MESSAGE)}' to topic '{TOPIC}'.")
 
