@@ -4,21 +4,21 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 import RPi.GPIO as GPIO
-from kafka import KafkaProducer
+import paho.mqtt.client as mqtt
 import json
+
 ############################################################
 # Relevanter Teil fuer die Uebung
 # Hier die Geschwindigkeit eintragen von 0 = 0% bis 1 = 100%
 # z.B. 0.44 entspricht 44%
 pSpeed = 0
-Team = 'TEAMNAME' #Hier den Teamnamen als String eintragen
-
+Team = 'TEAMNAME' # Hier den Teamnamen als String eintragen
+BROKER = ""  # Hier die IP Adresse des Brokers eintragen
+PORT = 1883
 
 #Ab hier muss nichts mehr angepassst werden
 ############################################################
-ServerAdress = '193.196.38.196:9092';
-QRCode = 'Sample QRCode'
-ExcameTopic = 'GENERAL-CHANNEL'
+
 camera = PiCamera()
 camera.resolution = (320, 240)
 camera.framerate = 32
@@ -37,7 +37,10 @@ pwm.start(73 * Speed)
 qr_last = None
 
 
-
+# Create an MQTT client instance
+client = mqtt.Client()
+# Connect to the broker
+client.connect(BROKER, PORT, 60)
 
 
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -48,21 +51,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     if qr is not None:
         print (QRScanner.read_qr_code(qr))
 
-
     if (qr is not None and qr_last is not None):
         if (QRScanner.qr_codes_equal(qr,qr_last)):
             print (QRScanner.read_qr_code(qr))
-            ##
-
-
-
             QRCode = QRScanner.read_qr_code(qr)
-            producer = KafkaProducer(bootstrap_servers=ServerAdress,
-                                     value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-            future = producer.send(ExcameTopic, {'QRCode': QRCode, 'Speed': pSpeed, 'Team': Team})
-            result = future.get(timeout=60)
-            producer.flush()
-            ##
+            TOPIC = f'isw/ITArch/pi/'
+            MESSAGE = {"QRCode": QRCode, "Speed": pSpeed, "Team": Team}
+            client.publish(TOPIC, str(MESSAGE))
+            print(f"Published message '{str(MESSAGE)}' to topic '{TOPIC}'.")
 
     qr_last = qr
     rawCapture.truncate(0)
